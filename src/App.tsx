@@ -46,7 +46,7 @@ interface Group { key: string; rows: Row[]; }
 function stripBB(s: string): string {
   return s
     .replace(/\[URL=[^\]]+\]([^\[]+)\[\/URL\]/gi, "$1")
-    .replace(/\[(?:\/)?(?:SIZE|B|COLOR|TABLE|TR|TD|URL|HR)\b[^\]]*\]/gi, "")
+    .replace(/\[(?:\/)?(?:SIZE|B|COLOR|TABLE|TR|TD|URL|HR|I|U)\b[^\]]*\]/gi, "")
     .replace(/\s+/g, " ")
     .trim();
 }
@@ -149,22 +149,41 @@ export default function RosterBBApp() {
   const [shop, setShop] = useState("No.5 Marrickville");
 
   const parsed = useMemo(() => {
-    const trs = [...raw.matchAll(/\[TR\]([\s\S]*?)\[\/TR\]/gi)].map(m=>m[1]);
-    const headIdx = trs.findIndex(tr => /\[SIZE=3\]/i.test(tr));
     const rows: Row[] = [];
-    trs.forEach((tr,i)=>{
-      if (i<=headIdx) return;
-      const tds = [...tr.matchAll(/\[TD[^\]]*\]([\s\S]*?)\[\/TD\]/gi)].map(m=>m[1]||"");
-      if (!tds.length) return;
-      const natKey = normalizeNat(stripBB(tds[0]||""));
-      const { text:rawName } = extractURLAndText(tds[1]||"");
-      const name = stripInlineTagWords(rawName);
-      const start = stripBB(tds[2]||"");
-      const finish = stripBB(tds[3]||"");
-      const timeLabel = `${start} - ${finish}`.trim();
-      const tags = extractTags(tds.join(" "));
-      rows.push({ natKey, name, timeLabel, tags });
-    });
+
+    if (/\[TABLE\]/i.test(raw)) {
+      // ---- BBCode TABLE parser ----
+      const trs = [...raw.matchAll(/\[TR\]([\s\S]*?)\[\/TR\]/gi)].map(m=>m[1]);
+      const headIdx = trs.findIndex(tr => /\[SIZE=3\]/i.test(tr));
+      trs.forEach((tr,i)=>{
+        if (i<=headIdx) return;
+        const tds = [...tr.matchAll(/\[TD[^\]]*\]([\s\S]*?)\[\/TD\]/gi)].map(m=>m[1]||"");
+        if (!tds.length) return;
+        const natKey = normalizeNat(stripBB(tds[0]||""));
+        const { text:rawName } = extractURLAndText(tds[1]||"");
+        const name = stripInlineTagWords(rawName);
+        const start = stripBB(tds[2]||"");
+        const finish = stripBB(tds[3]||"");
+        const timeLabel = `${start} - ${finish}`.trim();
+        const tags = extractTags(tds.join(" "));
+        rows.push({ natKey, name, timeLabel, tags });
+      });
+    } else {
+      // ---- Nightshade line parser ----
+      raw.split("\n").forEach(line=>{
+        const m = line.match(/^\(([^)]+)\).*?([A-Za-z0-9 ]+)\s+(\d{1,2}(?::\d{2})?\s*(?:am|pm))\s*-\s*([\d: ]+(?:am|pm)?)/i);
+        if (m) {
+          const natKey = normalizeNat(m[1]);
+          const rawName = m[2].trim();
+          const name = stripInlineTagWords(rawName);
+          const start = m[3].trim(), finish = m[4].trim();
+          const timeLabel = `${start} - ${finish}`;
+          const tags = extractTags(line);
+          rows.push({ natKey, name, timeLabel, tags });
+        }
+      });
+    }
+
     return rows;
   }, [raw]);
 
@@ -228,7 +247,7 @@ export default function RosterBBApp() {
           <Input value={title} onChange={e=>setTitle(e.target.value)} />
           <Label>Shop</Label>
           <Input value={shop} onChange={e=>setShop(e.target.value)} />
-          <Label>BBCode</Label>
+          <Label>BBCode / Nightshade</Label>
           <Textarea rows={18} value={raw} onChange={e=>setRaw(e.target.value)} />
           <Label>Page themes</Label>
           {pages.map((_,i)=>(
