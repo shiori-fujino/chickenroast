@@ -10,26 +10,109 @@ import { toPng } from "html-to-image";
 
 /* ------------------ Theme presets ------------------ */
 type ThemeKey =
-  | "amber" | "gold" | "tangerine" | "rose" | "magenta" | "violet"
-  | "cobalt" | "cyan" | "teal" | "emerald" | "lime" | "slate" | "luxegold";
+  | "amber" | "rose" | "sapphire" | "jade" | "mint" | "violet"
+  | "burgundy" | "copper" | "cyan" | "pearl" | "slate" | "luxegold"
+  | "turquoise" | "coral" | "olive" | "charcoal" | "ivory"
+  | "champagne" | "platinum" | "onyx" | "turmeric" | "azure";
 
-const THEMES: Record<
+  const THEMES: Record<
   ThemeKey,
   { accent: string; bg: string; ink: string; muted: string; hair: string; dot: string }
 > = {
-  amber:   { accent:"#FFB020", bg:"#1C1C1C", ink:"#FFF8E7", muted:"#FFD580", hair:"#33240A", dot:"rgba(255,200,100,.25)" },
-  gold:    { accent:"#FFD700", bg:"#1C1C1C", ink:"#FFFDF0", muted:"#FFE680", hair:"#3A2E00", dot:"rgba(255,220,120,.25)" },
-  tangerine:{ accent:"#FF6B00", bg:"#1C1C1C", ink:"#FFF5EE", muted:"#FFB380", hair:"#331600", dot:"rgba(255,180,120,.25)" },
-  rose:    { accent:"#FF2E63", bg:"#1C1C1C", ink:"#FFF0F5", muted:"#FF99B5", hair:"#33111D", dot:"rgba(255,120,160,.25)" },
-  magenta: { accent:"#FF00AA", bg:"#1C1C1C", ink:"#FFF0FA", muted:"#FF99DD", hair:"#330033", dot:"rgba(255,100,220,.25)" },
-  violet:  { accent:"#8B5CFF", bg:"#1C1C1C", ink:"#F5F0FF", muted:"#C9A8FF", hair:"#2E1A50", dot:"rgba(190,150,255,.25)" },
-  cobalt:  { accent:"#2563EB", bg:"#1C1C1C", ink:"#EFF6FF", muted:"#93C5FD", hair:"#12264D", dot:"rgba(120,170,255,.25)" },
-  cyan:    { accent:"#06B6D4", bg:"#1C1C1C", ink:"#E0FCFF", muted:"#67E8F9", hair:"#09343D", dot:"rgba(100,220,255,.25)" },
-  teal:    { accent:"#0D9488", bg:"#1C1C1C", ink:"#E6FFFB", muted:"#5EEAD4", hair:"#0D3B34", dot:"rgba(90,230,210,.25)" },
-  emerald: { accent:"#10B981", bg:"#1C1C1C", ink:"#ECFDF5", muted:"#6EE7B7", hair:"#0E3B2D", dot:"rgba(90,230,170,.25)" },
-  lime:    { accent:"#84CC16", bg:"#1C1C1C", ink:"#F7FFE8", muted:"#C5F566", hair:"#1E3100", dot:"rgba(170,255,120,.25)" },
-  slate:   { accent:"#64748B", bg:"#1C1C1C", ink:"#F2F4F8", muted:"#A5B4CC", hair:"#2C3240", dot:"rgba(170,190,210,.30)" },
-  luxegold:{ accent:"#D4AF37", bg:"#1C1C1C", ink:"#E6D5B8", muted:"#B8A77D", hair:"#000000", dot:"rgba(212,175,55,.25)" },
+  luxegold:{ accent:"#D4AF37", bg:"#1C1C1C", ink:"#E6D5B8", muted:"#B8A77D", hair:"#000000", dot:"rgba(212,175,55,.25)" }, // default
+
+  amber:   { accent:"#FFB020", bg:"#1C1C1C", ink:"#FFF8E7", muted:"#FFD580", hair:"#33240A", dot:"rgba(255,200,100,.25)" }, // warm orange
+  rose:    { accent:"#FF2E63", bg:"#1C1C1C", ink:"#FFF0F5", muted:"#FF99B5", hair:"#33111D", dot:"rgba(255,120,160,.25)" }, // pink
+  violet:  { accent:"#8B5CFF", bg:"#1C1C1C", ink:"#F5F0FF", muted:"#C9A8FF", hair:"#2E1A50", dot:"rgba(190,150,255,.25)" }, // purple
+  sapphire:{ accent:"#4169E1", bg:"#1C1C1C", ink:"#EAF0FF", muted:"#A8B8E6", hair:"#1C294D", dot:"rgba(65,105,225,.25)" },  // blue
+  cyan:    { accent:"#06B6D4", bg:"#1C1C1C", ink:"#E0FCFF", muted:"#67E8F9", hair:"#09343D", dot:"rgba(100,220,255,.25)" }, // light blue
+  jade:    { accent:"#00A86B", bg:"#1C1C1C", ink:"#E6FFF5", muted:"#99E6C8", hair:"#004D33", dot:"rgba(0,168,107,.25)" },   // jade green
+  mint:    { accent:"#3EB489", bg:"#1C1C1C", ink:"#EDFFF9", muted:"#AAE6D1", hair:"#1E4D3D", dot:"rgba(62,180,137,.25)" }, // soft green
+  burgundy:{ accent:"#800020", bg:"#1C1C1C", ink:"#FDEDF0", muted:"#D9A8B8", hair:"#33000D", dot:"rgba(128,0,32,.25)" },   // deep red
+  copper:  { accent:"#B87333", bg:"#1C1C1C", ink:"#FFF5EB", muted:"#E6C4A8", hair:"#4D2E1A", dot:"rgba(184,115,51,.25)" }, // metallic
+  pearl:   { accent:"#E8E4D8", bg:"#1C1C1C", ink:"#FAFAF7", muted:"#D6D2C8", hair:"#3D3B36", dot:"rgba(232,228,216,.25)" }, // light neutral
+  slate:   { accent:"#64748B", bg:"#1C1C1C", ink:"#F2F4F8", muted:"#A5B4CC", hair:"#2C3240", dot:"rgba(170,190,210,.30)" }, // grey
+  turquoise: {
+    accent: "#40E0D0",
+    bg: "#1C1C1C",
+    ink: "#E6FFFF",
+    muted: "#A8E6E0",
+    hair: "#104D4D",
+    dot: "rgba(64,224,208,.25)"
+  },
+  coral: {
+    accent: "#FF7F50",
+    bg: "#1C1C1C",
+    ink: "#FFF3ED",
+    muted: "#FFC4B0",
+    hair: "#662B1F",
+    dot: "rgba(255,127,80,.25)"
+  },
+  olive: {
+    accent: "#808000",
+    bg: "#1C1C1C",
+    ink: "#F7F7E0",
+    muted: "#D6D6A8",
+    hair: "#333311",
+    dot: "rgba(128,128,0,.25)"
+  },
+  charcoal: {
+    accent: "#36454F",
+    bg: "#1C1C1C",
+    ink: "#E8EEF2",
+    muted: "#A8B3B8",
+    hair: "#12191C",
+    dot: "rgba(54,69,79,.25)"
+  },
+  ivory: {
+    accent: "#FFFFF0",
+    bg: "#1C1C1C",
+    ink: "#FFFFFF",
+    muted: "#E6E6D6",
+    hair: "#4D4D40",
+    dot: "rgba(255,255,240,.25)"
+  },
+  champagne: {
+    accent: "#F7E7CE",
+    bg: "#1C1C1C",
+    ink: "#FFFAF0",
+    muted: "#E6D6B8",
+    hair: "#4D4233",
+    dot: "rgba(247,231,206,.25)"
+  },
+  platinum: {
+    accent: "#E5E4E2",
+    bg: "#1C1C1C",
+    ink: "#FFFFFF",
+    muted: "#CCCCCC",
+    hair: "#333333",
+    dot: "rgba(229,228,226,.25)"
+  },
+  onyx: {
+    accent: "#353839",
+    bg: "#1C1C1C",
+    ink: "#EAEAEA",
+    muted: "#B8B8B8",
+    hair: "#111111",
+    dot: "rgba(53,56,57,.25)"
+  },
+  turmeric: {
+    accent: "#CC7722",
+    bg: "#1C1C1C",
+    ink: "#FFF5E6",
+    muted: "#E6B588",
+    hair: "#4D2E0D",
+    dot: "rgba(204,119,34,.25)"
+  },
+  azure: {
+    accent: "#007FFF",
+    bg: "#1C1C1C",
+    ink: "#E6F5FF",
+    muted: "#99CCFF",
+    hair: "#00334D",
+    dot: "rgba(0,127,255,.25)"
+  },
+  
 };
 type Theme = (typeof THEMES)[ThemeKey];
 
@@ -62,12 +145,14 @@ function extractTags(source: string): string[] {
   const raw = stripBB(source).toUpperCase();
   const tags: string[] = [];
   if (/\bNEW\b/.test(raw)) tags.push("NEW");
-  if (/\bVIP\b/.test(raw)) tags.push("VIP");
+  if (/\bPOPULAR\b/.test(raw)) tags.push("POPULAR");
+  if (/\bGFE\b/.test(raw)) tags.push("GFE");
+  if (/\bPSE\b/.test(raw)) tags.push("PSE");
   if (/\bJAV\b/.test(raw)) tags.push("JAV");
-  if (/\bCAME\s*BACK\b/.test(raw) || /\bRETURN\b/.test(raw)) tags.push("CAME BACK!");
+  if (/\bSHE'S\s*BACK\b/.test(raw) || /\bRETURN\b/.test(raw)) tags.push("SHE'S BACK!");
   return tags;
 }
-const INLINE_TAG_WORDS = ["new","vip","jav","top","special","premium","came back"];
+const INLINE_TAG_WORDS = ["new","gfe","jav","pse","popular","she's back"];
 function stripInlineTagWords(name: string): string {
   return name.replace(
     new RegExp(`\\b(?:${INLINE_TAG_WORDS.join("|")})\\b`, "gi"),
@@ -95,6 +180,10 @@ function PosterSingle({
       <style dangerouslySetInnerHTML={{
         __html: `
         .poster1{max-width:100%;margin:0 auto;background:var(--bg);color:var(--ink);border:none;overflow:hidden;box-shadow:0 10px 30px rgba(0,0,0,.4)}
+        .theme-select {
+          background-color: yellowgreen;
+          color: #1c1c1c;
+        }
         .poster1 .content{padding:20px}
         .poster1 .title{text-align:center;margin-bottom:12px}
         .poster1 .title h1{margin:0;font-weight:900;font-size:22px}
@@ -251,8 +340,11 @@ export default function RosterBBApp() {
           <Textarea rows={18} value={raw} onChange={e=>setRaw(e.target.value)} />
           <Label>Page themes</Label>
           {pages.map((_,i)=>(
-            <select key={i} value={pageThemes[i]||"luxegold"}
-              onChange={e=>{
+            <select 
+            className="theme-select"
+            key={i} 
+            value={pageThemes[i]||"luxegold"}
+            onChange={e=>{
                 const copy=[...pageThemes];
                 copy[i]=e.target.value as ThemeKey;
                 setPageThemes(copy);
