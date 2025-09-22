@@ -55,23 +55,11 @@ interface Row {
 interface Group { key: string; rows: Row[]; }
 
 /* ------------------ Helpers ------------------ */
-function stripBB(s: string): string {
-  return s
-    .replace(/\[URL=[^\]]+\]([^\[]+)\[\/URL\]/gi, "$1")
-    .replace(/\[(?:\/)?(?:SIZE|B|COLOR|TABLE|TR|TD|URL|HR|I|U)\b[^\]]*\]/gi, "")
-    .replace(/\s+/g, " ")
-    .trim();
-}
-function extractURLAndText(cell: string): { text: string; url?: string } {
-  const m = cell.match(/\[URL=\"([^\"]+)\"\]([^\[]+)\[\/URL\]/i);
-  if (m) return { text: m[2].trim(), url: m[1].trim() };
-  return { text: stripBB(cell) };
-}
 function normalizeNat(raw: string) {
   return raw.toLowerCase().trim();
 }
 function extractTags(source: string): string[] {
-  const raw = stripBB(source).toUpperCase();
+  const raw = source.toUpperCase();
   const tags: string[] = [];
   if (/\bNEW\b/.test(raw)) tags.push("NEW");
   if (/\bPOPULAR\b/.test(raw)) tags.push("POPULAR");
@@ -82,11 +70,15 @@ function extractTags(source: string): string[] {
   return tags;
 }
 const INLINE_TAG_WORDS = ["new","gfe","jav","pse","popular","she's back"];
-function stripInlineTagWords(name: string): string {
-  return name.replace(
-    new RegExp(`\\b(?:${INLINE_TAG_WORDS.join("|")})\\b`, "gi"),
-    ""
-  ).replace(/\s{2,}/g, " ").trim();
+function stripInlineTagWords(s: string): string {
+  return s
+    // remove known inline tag words
+    .replace(new RegExp(`\\b(?:${INLINE_TAG_WORDS.join("|")})\\b`, "gi"), "")
+    // remove leftover punctuation like !!! ??? ...
+    .replace(/[!?.]+/g, "")
+    // collapse spaces
+    .replace(/\s{2,}/g, " ")
+    .trim();
 }
 
 /* ------------------ Poster ------------------ */
@@ -106,8 +98,7 @@ function PosterSingle({
   };
   return (
     <div style={cssVars} className="poster-page">
-      <style dangerouslySetInnerHTML={{
-        __html: `
+      <style dangerouslySetInnerHTML={{__html:`
         .poster1{max-width:100%;margin:0 auto;background:var(--bg);color:var(--ink);border:none;overflow:hidden;box-shadow:0 10px 30px rgba(0,0,0,.4)}
         .poster1 .content{padding:20px}
         .poster1 .title{text-align:center;margin-bottom:12px}
@@ -119,26 +110,17 @@ function PosterSingle({
         .poster1 .row{display:flex;justify-content:space-between;align-items:baseline;padding:6px 0;border-bottom:1px solid var(--hair);font-size:13px}
         .poster1 .left{font-weight:700;flex:1}
         .poster1 .nat{display:inline-block;margin-right:6px;color:var(--muted);font-weight:600;font-size:.75em;text-transform:capitalize}
-        .poster1 .time {
-          margin-left: 6px;
-          color: var(--muted);
-          font-weight: 500;
-          font-size: .75em;
-          flex: 0 0 80px;
-          text-align: right;
-          white-space: nowrap;
-        }
+        .poster1 .time{margin-left:6px;color:var(--muted);font-weight:500;font-size:.75em;flex:0 0 80px;text-align:right;white-space:nowrap}
         .poster1 .price{margin-left:10px;color:var(--ink);font-weight:600;font-size:.9em;flex:1;text-align:right}
         .poster1 .tags{display:inline-flex;gap:.35rem;margin-left:.5rem;flex-wrap:wrap}
         .poster1 .tag{display:inline-block;padding:.15rem .4rem;border-radius:4px;font-weight:800;font-size:.7em;color:var(--accent);border:1px solid var(--accent)}
-        `
-      }} />
+      `}} />
       <div className="poster1">
         <div className="content">
-          <div className="title"><h1>{title}</h1></div>
+          <div className="title"><h1>{title || " "}</h1></div>
           <div className="center-band" aria-hidden="true">
             <div className="line" />
-            <div className="label">{shop}</div>
+            <div className="label">{shop || " "}</div>
             <div className="line" />
           </div>
           {groups.map((g) => (
@@ -170,44 +152,53 @@ function PosterSingle({
 
 /* ------------------ Main ------------------ */
 export default function RosterBBApp() {
-  const [raw, setRaw] = useState(`[TABLE]... paste here ...[/TABLE]`);
-  const [title, setTitle] = useState("Wednesday 17/9/2025");
-  const [shop, setShop] = useState("No.5 Marrickville");
-  const [themeKey, setThemeKey] = useState<ThemeKey>("luxegold"); // ✅ fixed here
+  const [raw, setRaw] = useState("");
+  const [title, setTitle] = useState("");
+  const [shop, setShop] = useState("");
+  const [themeKey, setThemeKey] = useState<ThemeKey>("luxegold");
 
   const parsed = useMemo(() => {
     const rows: Row[] = [];
-    if (/\[TABLE\]/i.test(raw)) {
-      const trs = [...raw.matchAll(/\[TR\]([\s\S]*?)\[\/TR\]/gi)].map(m=>m[1]);
-      const headIdx = trs.findIndex(tr => /\[SIZE=3\]/i.test(tr));
-      trs.forEach((tr,i)=>{
-        if (i<=headIdx) return;
-        const tds = [...tr.matchAll(/\[TD[^\]]*\]([\s\S]*?)\[\/TD\]/gi)].map(m=>m[1]||"");
-        if (!tds.length) return;
-        const natKey = normalizeNat(stripBB(tds[0]||""));
-        const { text:rawName } = extractURLAndText(tds[1]||"");
-        const name = stripInlineTagWords(rawName);
-        const start = stripBB(tds[2]||"");
-        const finish = stripBB(tds[3]||"");
-        const price = stripBB(tds[4]||"");
-        const timeLabel = `${start} - ${finish}`.trim();
-        const tags = extractTags(tds.join(" "));
-        rows.push({ natKey, name, timeLabel, price, tags });
-      });
-    } else {
-      raw.split("\n").forEach(line=>{
-        const m = line.match(/^\(([^)]+)\).*?([A-Za-z0-9 ]+)\s+(\d{1,2}(?::\d{2})?\s*(?:am|pm))\s*-\s*([\d: ]+(?:am|pm)?)/i);
-        if (m) {
-          const natKey = normalizeNat(m[1]);
-          const rawName = m[2].trim();
-          const name = stripInlineTagWords(rawName);
-          const start = m[3].trim(), finish = m[4].trim();
-          const timeLabel = `${start} - ${finish}`;
-          const tags = extractTags(line);
-          rows.push({ natKey, name, timeLabel, price:"", tags });
-        }
-      });
+    const lines = raw.split("\n").map(l => l.trim()).filter(l => l.length);
+
+    // skip date-like first line
+    if (lines.length && /^\d{1,2}\/\d{1,2}\/\d{2,4}(?:\s+[A-Za-z]+)?$/i.test(lines[0])) {
+      lines.shift();
     }
+
+    lines.forEach(line => {
+      // -------- No.5 clean format (tab or multi-space) --------
+      const parts = line.split(/\t+|\s{2,}/).map(p => p.trim());
+      if (parts.length >= 5) {
+        const natKey = normalizeNat(stripInlineTagWords(parts[0])); // clean nationality tags
+        const rawName = parts[1];
+        const name = stripInlineTagWords(rawName);
+        const start = parts[2];
+        const finish = parts[3];
+        const price = parts[4];
+        const timeLabel = `${start} - ${finish}`;
+        const tags = extractTags(line);
+        rows.push({ natKey, name, timeLabel, price, tags });
+        return;
+      }
+
+      // -------- Nightshade format --------
+      const m = line.match(
+        /^\(([^)]+)\)\s*([A-Za-z0-9 ]+)\s+(\d{1,2}(?::\d{2})?\s*(?:am|pm))\s*-\s*([\d: ]+(?:am|pm)?)/i
+      );
+      if (m) {
+        const natKey = normalizeNat(m[1]);
+        const rawName = m[2].trim();
+        const name = stripInlineTagWords(rawName);
+        const start = m[3].trim(), finish = m[4].trim();
+        const timeLabel = `${start} - ${finish}`;
+        const priceMatch = line.match(/(\d{2,3})\s*\/\s*HR/i);
+        const price = priceMatch ? `${priceMatch[1]}/HR` : "";
+        const tags = extractTags(line);
+        rows.push({ natKey, name, timeLabel, price, tags });
+      }
+    });
+
     return rows;
   }, [raw]);
 
@@ -220,14 +211,14 @@ export default function RosterBBApp() {
     const dataUrl = await toPng(node,{pixelRatio:3,cacheBust:true,width,height});
     const a=document.createElement("a");
     a.href=dataUrl;
-    a.download=`${title.replace(/\s+/g,"_")}.png`;
+    a.download=`${title.replace(/\s+/g,"_") || "poster"}.png`;
     a.click();
   }
 
   return (
     <div className="min-h-screen w-screen bg-neutral-100 text-neutral-900 flex flex-col gap-6 p-6">
       <header className="flex items-center justify-between gap-2">
-        <h1 className="text-2xl font-bold">Roster BBCode → Poster (One Column)</h1>
+        <h1 className="text-2xl font-bold">Roster Parser → Poster</h1>
         <Button onClick={exportPNG}><ImageIcon className="w-4 h-4 mr-2"/> Export PNG</Button>
       </header>
 
@@ -248,7 +239,7 @@ export default function RosterBBApp() {
           <Input value={title} onChange={e=>setTitle(e.target.value)} />
           <Label>Shop</Label>
           <Input value={shop} onChange={e=>setShop(e.target.value)} />
-          <Label>BBCode / Nightshade</Label>
+          <Label>Roster Input</Label>
           <Textarea rows={18} value={raw} onChange={e=>setRaw(e.target.value)} />
         </CardContent></Card>
 
@@ -257,7 +248,7 @@ export default function RosterBBApp() {
             title={title}
             shop={shop}
             groups={groups}
-            theme={THEMES[themeKey]} // ✅ use variable
+            theme={THEMES[themeKey]}
           />
         </CardContent></Card>
       </div>
