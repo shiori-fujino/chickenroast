@@ -55,28 +55,40 @@ interface Row {
 interface Group { key: string; rows: Row[]; }
 
 /* ------------------ Helpers ------------------ */
+
 function normalizeNat(raw: string) {
-  return raw.toLowerCase().trim();
+  const cleaned = raw.toLowerCase().trim();
+  // special-case: don't strip "new" if it's part of "new zealand"
+  if (cleaned.startsWith("new zealand")) {
+    return "new zealand";
+  }
+  return cleaned;
 }
+
 function extractTags(source: string): string[] {
   const raw = source.toUpperCase();
   const tags: string[] = [];
-  if (/\bNEW\b/.test(raw)) tags.push("NEW");
+  if (/\bNEW\b/.test(raw) && !/\bNEW\s+ZEALAND\b/.test(raw)) tags.push("NEW"); // skip New Zealand
   if (/\bPOPULAR\b/.test(raw)) tags.push("POPULAR");
   if (/\bGFE\b/.test(raw)) tags.push("GFE");
   if (/\bPSE\b/.test(raw)) tags.push("PSE");
   if (/\bJAV\b/.test(raw)) tags.push("JAV");
-  if (/\bSHE'S\s*BACK\b/.test(raw) || /\bRETURN\b/.test(raw)) tags.push("SHE'S BACK!");
+  if (/\bSHE'S\s*BACK\b/.test(raw) || /\bRETURN\b/.test(raw) || /\bCAME\s+BACK\b/.test(raw)) {
+    tags.push("SHE'S BACK!");  // unify under one label
+  }
+  if (/\bLAST\s+DAY\b/.test(raw)) tags.push("LAST DAY");  // new tag
   return tags;
 }
-const INLINE_TAG_WORDS = ["new","gfe","jav","pse","popular","she's back"];
+
+
+const INLINE_TAG_WORDS = ["new","gfe","jav","pse","popular","she's back","last day"];
+
 function stripInlineTagWords(s: string): string {
   return s
-    // remove known inline tag words
+    .replace(/\bNew\s+Zealand\b/gi, "NZPLACEHOLDER") // ✅ protect
     .replace(new RegExp(`\\b(?:${INLINE_TAG_WORDS.join("|")})\\b`, "gi"), "")
-    // remove leftover punctuation like !!! ??? ...
+    .replace(/NZPLACEHOLDER/g, "New Zealand")        // ✅ restore
     .replace(/[!?.]+/g, "")
-    // collapse spaces
     .replace(/\s{2,}/g, " ")
     .trim();
 }
@@ -170,14 +182,14 @@ export default function RosterBBApp() {
       // -------- No.5 clean format (tab or multi-space) --------
       const parts = line.split(/\t+|\s{2,}/).map(p => p.trim());
       if (parts.length >= 5) {
-        const natKey = normalizeNat(stripInlineTagWords(parts[0])); // clean nationality tags
+        const natKey = normalizeNat(stripInlineTagWords(parts[0]));
         const rawName = parts[1];
         const name = stripInlineTagWords(rawName);
         const start = parts[2];
         const finish = parts[3];
         const price = parts[4];
         const timeLabel = `${start} - ${finish}`;
-        const tags = extractTags(line);
+        const tags = extractTags(line);   // ✅ use full line
         rows.push({ natKey, name, timeLabel, price, tags });
         return;
       }
