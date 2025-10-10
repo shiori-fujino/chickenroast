@@ -58,7 +58,6 @@ interface Group { key: string; rows: Row[]; }
 
 function normalizeNat(raw: string) {
   const cleaned = raw.toLowerCase().trim();
-  // special-case: don't strip "new" if it's part of "new zealand"
   if (cleaned.startsWith("new zealand")) {
     return "new zealand";
   }
@@ -68,26 +67,28 @@ function normalizeNat(raw: string) {
 function extractTags(source: string): string[] {
   const raw = source.toUpperCase();
   const tags: string[] = [];
-  if (/\bNEW\b/.test(raw) && !/\bNEW\s+ZEALAND\b/.test(raw)) tags.push("NEW"); // skip New Zealand
+  if (/\bNEW\b/.test(raw) && !/\bNEW\s+ZEALAND\b/.test(raw)) tags.push("NEW");
   if (/\bPOPULAR\b/.test(raw)) tags.push("POPULAR");
   if (/\bGFE\b/.test(raw)) tags.push("GFE");
   if (/\bPSE\b/.test(raw)) tags.push("PSE");
   if (/\bJAV\b/.test(raw)) tags.push("JAV");
   if (/\bSHE'S\s*BACK\b/.test(raw) || /\bRETURN\b/.test(raw) || /\bCAME\s+BACK\b/.test(raw)) {
-    tags.push("SHE'S BACK!");  // unify under one label
+    tags.push("SHE'S BACK!");
   }
-  if (/\bLAST\s+DAY\b/.test(raw)) tags.push("LAST DAY");  // new tag
+  if (/\bLAST\s+DAY\b/.test(raw)) tags.push("LAST DAY");
+  if (/\bFIRST\s+DAY\b/.test(raw)) tags.push("FIRST DAY");
   return tags;
 }
 
-
-const INLINE_TAG_WORDS = ["new","gfe","jav","pse","popular","she's back","last day"];
+const INLINE_TAG_WORDS = [
+  "new","gfe","jav","pse","popular","she's back","last day","first day"
+];
 
 function stripInlineTagWords(s: string): string {
   return s
-    .replace(/\bNew\s+Zealand\b/gi, "NZPLACEHOLDER") // ✅ protect
+    .replace(/\bNew\s+Zealand\b/gi, "NZPLACEHOLDER")
     .replace(new RegExp(`\\b(?:${INLINE_TAG_WORDS.join("|")})\\b`, "gi"), "")
-    .replace(/NZPLACEHOLDER/g, "New Zealand")        // ✅ restore
+    .replace(/NZPLACEHOLDER/g, "New Zealand")
     .replace(/[!?.]+/g, "")
     .replace(/\s{2,}/g, " ")
     .trim();
@@ -126,6 +127,8 @@ function PosterSingle({
         .poster1 .price{margin-left:10px;color:var(--ink);font-weight:600;font-size:.9em;flex:1;text-align:right}
         .poster1 .tags{display:inline-flex;gap:.35rem;margin-left:.5rem;flex-wrap:wrap}
         .poster1 .tag{display:inline-block;padding:.15rem .4rem;border-radius:4px;font-weight:800;font-size:.7em;color:var(--accent);border:1px solid var(--accent)}
+        .poster1 .tag-firstday{color:#39FF14 !important;border-color:#39FF14 !important;text-shadow:0 0 6px rgba(57,255,20,0.8)}
+        .poster1 .tag-lastday{color:#FF00FF !important;border-color:#FF00FF !important;text-shadow:0 0 6px rgba(255,0,255,0.8)}
       `}} />
       <div className="poster1">
         <div className="content">
@@ -145,7 +148,12 @@ function PosterSingle({
                     {r.tags?.length ? (
                       <span className="tags">
                         {r.tags.map((t, i) => (
-                          <span key={t+i} className="tag">{t}</span>
+                          <span 
+                            key={t+i} 
+                            className={`tag ${t === "FIRST DAY" ? "tag-firstday" : t === "LAST DAY" ? "tag-lastday" : ""}`}
+                          >
+                            {t}
+                          </span>
                         ))}
                       </span>
                     ) : null}
@@ -173,13 +181,11 @@ export default function RosterBBApp() {
     const rows: Row[] = [];
     const lines = raw.split("\n").map(l => l.trim()).filter(l => l.length);
 
-    // skip date-like first line
     if (lines.length && /^\d{1,2}\/\d{1,2}\/\d{2,4}(?:\s+[A-Za-z]+)?$/i.test(lines[0])) {
       lines.shift();
     }
 
     lines.forEach(line => {
-      // -------- No.5 clean format (tab or multi-space) --------
       const parts = line.split(/\t+|\s{2,}/).map(p => p.trim());
       if (parts.length >= 5) {
         const natKey = normalizeNat(stripInlineTagWords(parts[0]));
@@ -189,12 +195,11 @@ export default function RosterBBApp() {
         const finish = parts[3];
         const price = parts[4];
         const timeLabel = `${start} - ${finish}`;
-        const tags = extractTags(line);   // ✅ use full line
+        const tags = extractTags(line);
         rows.push({ natKey, name, timeLabel, price, tags });
         return;
       }
 
-      // -------- Nightshade format --------
       const m = line.match(
         /^\(([^)]+)\)\s*([A-Za-z0-9 ]+)\s+(\d{1,2}(?::\d{2})?\s*(?:am|pm))\s*-\s*([\d: ]+(?:am|pm)?)/i
       );
