@@ -127,8 +127,8 @@ function PosterSingle({
         .poster1 .price{margin-left:10px;color:var(--ink);font-weight:600;font-size:.9em;flex:1;text-align:right}
         .poster1 .tags{display:inline-flex;gap:.35rem;margin-left:.5rem;flex-wrap:wrap}
         .poster1 .tag{display:inline-block;padding:.15rem .4rem;border-radius:4px;font-weight:800;font-size:.7em;color:var(--accent);border:1px solid var(--accent)}
-        .poster1 .tag-firstday{color:#39FF14 !important;border-color:#39FF14 !important;text-shadow:0 0 6px rgba(57,255,20,0.8)}
-        .poster1 .tag-lastday{color:#FF00FF !important;border-color:#FF00FF !important;text-shadow:0 0 6px rgba(255,0,255,0.8)}
+        .poster1 .tag-firstday{color:#50C878 !important;border-color:#50C878 !important;text-shadow:0 0 6px rgba(57,255,20,0.8)}
+        .poster1 .tag-lastday{color:#D946EF !important;border-color:#D946EF !important;text-shadow:0 0 6px rgba(255,0,255,0.8)}
       `}} />
       <div className="poster1">
         <div className="content">
