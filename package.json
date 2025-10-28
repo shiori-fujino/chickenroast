@@ -5,11 +5,13 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build",
+    "build": "vite build",
+    "predeploy": "npm run build",
     "postbuild": "cp dist/index.html dist/404.html",
     "lint": "eslint .",
     "preview": "vite preview",
-    "deploy": "vite build && gh-pages -d dist"
+    "deploy": "gh-pages -d dist -b gh-pages",
+    "publish": "git add . && git commit -m \"auto: update build\" && git push && npm run deploy"
   },
   "dependencies": {
     "@radix-ui/react-label": "^2.1.7",

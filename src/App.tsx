@@ -10,6 +10,7 @@ import { toPng } from "html-to-image";
 
 /* ------------------ Theme presets ------------------ */
 type ThemeKey =
+  | "halloween1" | "halloween2" | "halloween3" 
   | "amber" | "rose" | "sapphire" | "jade" | "mint" | "violet"
   | "burgundy" | "copper" | "cyan" | "pearl" | "slate" | "luxegold"
   | "turquoise" | "coral" | "olive" | "charcoal" | "ivory"
@@ -19,6 +20,33 @@ const THEMES: Record<
   ThemeKey,
   { accent: string; bg: string; ink: string; muted: string; hair: string; dot: string }
 > = {
+  /* ------------------ 🎃 Halloween Themes ------------------ */
+  halloween1: { // 🎃 Pumpkin Noir
+    accent: "#FF7518",            // pumpkin orange
+    bg: "#0D0D0D",                // near black
+    ink: "#FFF8E6",               // soft candlelight white
+    muted: "#FFB84D",             // amber orange
+    hair: "#1A0D00",              // deep brown-black
+    dot: "rgba(255,117,24,.25)",  // faint orange mist
+  },
+
+  halloween2: { // 💀 Witching Hour
+    accent: "#9A4DFF",            // glowing violet
+    bg: "#050014",                // midnight purple-black
+    ink: "#EDE5FF",               // faint lavender ink
+    muted: "#7E57C2",             // dull purple gray
+    hair: "#120A33",              // dark indigo
+    dot: "rgba(154,77,255,.25)",  // witch glow
+  },
+
+  halloween3: { // 👻 Crimson Veil
+    accent: "#C41E3A",            // blood red
+    bg: "#080000",                // near black
+    ink: "#FFE6E9",               // pale pinkish ink
+    muted: "#FF7B8A",             // rose red
+    hair: "#260000",              // dark red-brown
+    dot: "rgba(196,30,58,.25)",   // faint blood mist
+  },
   luxegold:{ accent:"#D4AF37", bg:"#1C1C1C", ink:"#E6D5B8", muted:"#B8A77D", hair:"#000000", dot:"rgba(212,175,55,.25)" },
   amber:{ accent:"#FFB020", bg:"#1C1C1C", ink:"#FFF8E7", muted:"#FFD580", hair:"#33240A", dot:"rgba(255,200,100,.25)" },
   rose:{ accent:"#FF2E63", bg:"#1C1C1C", ink:"#FFF0F5", muted:"#FF99B5", hair:"#33111D", dot:"rgba(255,120,160,.25)" },
@@ -129,6 +157,23 @@ function PosterSingle({
         .poster1 .tag{display:inline-block;padding:.15rem .4rem;border-radius:4px;font-weight:800;font-size:.7em;color:var(--accent);border:1px solid var(--accent)}
         .poster1 .tag-firstday{color:#50C878 !important;border-color:#50C878 !important;text-shadow:0 0 6px rgba(57,255,20,0.8)}
         .poster1 .tag-lastday{color:#D946EF !important;border-color:#D946EF !important;text-shadow:0 0 6px rgba(255,0,255,0.8)}
+        .poster1 .tag-new {
+          color: #E63946 !important; /* ruby red */
+          border-color: #E63946 !important;
+          text-shadow: 0 0 6px rgba(230, 57, 70, 0.8);
+        }
+        /* ------------------ Halloween Accents ------------------ */
+.poster1.halloween1 .title h1 {
+  text-shadow: 0 0 12px rgba(255,117,24,0.5);
+}
+.poster1.halloween2 .title h1 {
+  text-shadow: 0 0 12px rgba(154,77,255,0.6);
+}
+.poster1.halloween3 .title h1 {
+  text-shadow: 0 0 12px rgba(196,30,58,0.6);
+}
+
+
       `}} />
       <div className="poster1">
         <div className="content">
@@ -150,7 +195,11 @@ function PosterSingle({
                         {r.tags.map((t, i) => (
                           <span 
                             key={t+i} 
-                            className={`tag ${t === "FIRST DAY" ? "tag-firstday" : t === "LAST DAY" ? "tag-lastday" : ""}`}
+                            className={`tag ${
+  t === "FIRST DAY" ? "tag-firstday" :
+  t === "LAST DAY" ? "tag-lastday" :
+  t === "NEW" ? "tag-new" : ""
+}`}
                           >
                             {t}
                           </span>
@@ -215,9 +264,14 @@ export default function RosterBBApp() {
         rows.push({ natKey, name, timeLabel, price, tags });
       }
     });
-
     return rows;
   }, [raw]);
+  const decoratedTitle = useMemo(() => {
+    if (themeKey === "halloween1") return `🎃 ${title} 🎃`;
+    if (themeKey === "halloween2") return `👻 ${title}👻 `;
+    if (themeKey === "halloween3") return `🧙‍♀️ ${title}🔮 `;
+    return title;
+  }, [themeKey, title]);
 
   const groups: Group[] = [{ key:"all", rows: parsed }];
 
@@ -262,11 +316,11 @@ export default function RosterBBApp() {
 
         <Card><CardContent className="p-4">
           <PosterSingle
-            title={title}
-            shop={shop}
-            groups={groups}
-            theme={THEMES[themeKey]}
-          />
+  title={decoratedTitle}
+  shop={shop}
+  groups={groups}
+  theme={THEMES[themeKey]}
+/>
         </CardContent></Card>
       </div>
     </div>
