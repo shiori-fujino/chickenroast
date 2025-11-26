@@ -10,7 +10,7 @@ import { toPng } from "html-to-image";
 
 /* ------------------ Theme presets ------------------ */
 type ThemeKey =
-  | "halloween1" | "halloween2" | "halloween3" 
+  | "xmas" | "halloween1" | "halloween2" | "halloween3"
   | "amber" | "rose" | "sapphire" | "jade" | "mint" | "violet"
   | "burgundy" | "copper" | "cyan" | "pearl" | "slate" | "luxegold"
   | "turquoise" | "coral" | "olive" | "charcoal" | "ivory"
@@ -20,6 +20,15 @@ const THEMES: Record<
   ThemeKey,
   { accent: string; bg: string; ink: string; muted: string; hair: string; dot: string }
 > = {
+  xmas: {
+    accent: "#C1121F",          // candy cane red
+    bg: "#0B2B26",              // deep pine green
+    ink: "#FFF6E5",             // warm snowfall white
+    muted: "#F2C94C",           // gold ornament
+    hair: "#041815",            // dark evergreen
+    dot: "rgba(242,201,76,.25)" // soft golden sparkle
+  },
+
   /* ------------------ 🎃 Halloween Themes ------------------ */
   halloween1: { // 🎃 Pumpkin Noir
     accent: "#FF7518",            // pumpkin orange
@@ -47,28 +56,28 @@ const THEMES: Record<
     hair: "#260000",              // dark red-brown
     dot: "rgba(196,30,58,.25)",   // faint blood mist
   },
-  luxegold:{ accent:"#D4AF37", bg:"#1C1C1C", ink:"#E6D5B8", muted:"#B8A77D", hair:"#000000", dot:"rgba(212,175,55,.25)" },
-  amber:{ accent:"#FFB020", bg:"#1C1C1C", ink:"#FFF8E7", muted:"#FFD580", hair:"#33240A", dot:"rgba(255,200,100,.25)" },
-  rose:{ accent:"#FF2E63", bg:"#1C1C1C", ink:"#FFF0F5", muted:"#FF99B5", hair:"#33111D", dot:"rgba(255,120,160,.25)" },
-  violet:{ accent:"#8B5CFF", bg:"#1C1C1C", ink:"#F5F0FF", muted:"#C9A8FF", hair:"#2E1A50", dot:"rgba(190,150,255,.25)" },
-  sapphire:{ accent:"#4169E1", bg:"#1C1C1C", ink:"#EAF0FF", muted:"#A8B8E6", hair:"#1C294D", dot:"rgba(65,105,225,.25)" },
-  cyan:{ accent:"#06B6D4", bg:"#1C1C1C", ink:"#E0FCFF", muted:"#67E8F9", hair:"#09343D", dot:"rgba(100,220,255,.25)" },
-  jade:{ accent:"#00A86B", bg:"#1C1C1C", ink:"#E6FFF5", muted:"#99E6C8", hair:"#004D33", dot:"rgba(0,168,107,.25)" },
-  mint:{ accent:"#3EB489", bg:"#1C1C1C", ink:"#EDFFF9", muted:"#AAE6D1", hair:"#1E4D3D", dot:"rgba(62,180,137,.25)" },
-  burgundy:{ accent:"#800020", bg:"#1C1C1C", ink:"#FDEDF0", muted:"#D9A8B8", hair:"#33000D", dot:"rgba(128,0,32,.25)" },
-  copper:{ accent:"#B87333", bg:"#1C1C1C", ink:"#FFF5EB", muted:"#E6C4A8", hair:"#4D2E1A", dot:"rgba(184,115,51,.25)" },
-  pearl:{ accent:"#E8E4D8", bg:"#1C1C1C", ink:"#FAFAF7", muted:"#D6D2C8", hair:"#3D3B36", dot:"rgba(232,228,216,.25)" },
-  slate:{ accent:"#64748B", bg:"#1C1C1C", ink:"#F2F4F8", muted:"#A5B4CC", hair:"#2C3240", dot:"rgba(170,190,210,.30)" },
-  turquoise:{ accent:"#40E0D0", bg:"#1C1C1C", ink:"#E6FFFF", muted:"#A8E6E0", hair:"#104D4D", dot:"rgba(64,224,208,.25)" },
-  coral:{ accent:"#FF7F50", bg:"#1C1C1C", ink:"#FFF3ED", muted:"#FFC4B0", hair:"#662B1F", dot:"rgba(255,127,80,.25)" },
-  olive:{ accent:"#808000", bg:"#1C1C1C", ink:"#F7F7E0", muted:"#D6D6A8", hair:"#333311", dot:"rgba(128,128,0,.25)" },
-  charcoal:{ accent:"#36454F", bg:"#1C1C1C", ink:"#E8EEF2", muted:"#A8B3B8", hair:"#12191C", dot:"rgba(54,69,79,.25)" },
-  ivory:{ accent:"#FFFFF0", bg:"#1C1C1C", ink:"#FFFFFF", muted:"#E6E6D6", hair:"#4D4D40", dot:"rgba(255,255,240,.25)" },
-  champagne:{ accent:"#F7E7CE", bg:"#1C1C1C", ink:"#FFFAF0", muted:"#E6D6B8", hair:"#4D4233", dot:"rgba(247,231,206,.25)" },
-  platinum:{ accent:"#E5E4E2", bg:"#1C1C1C", ink:"#FFFFFF", muted:"#CCCCCC", hair:"#333333", dot:"rgba(229,228,226,.25)" },
-  onyx:{ accent:"#353839", bg:"#1C1C1C", ink:"#EAEAEA", muted:"#B8B8B8", hair:"#111111", dot:"rgba(53,56,57,.25)" },
-  turmeric:{ accent:"#CC7722", bg:"#1C1C1C", ink:"#FFF5E6", muted:"#E6B588", hair:"#4D2E0D", dot:"rgba(204,119,34,.25)" },
-  azure:{ accent:"#007FFF", bg:"#1C1C1C", ink:"#E6F5FF", muted:"#99CCFF", hair:"#00334D", dot:"rgba(0,127,255,.25)" },
+  luxegold: { accent: "#D4AF37", bg: "#1C1C1C", ink: "#E6D5B8", muted: "#B8A77D", hair: "#000000", dot: "rgba(212,175,55,.25)" },
+  amber: { accent: "#FFB020", bg: "#1C1C1C", ink: "#FFF8E7", muted: "#FFD580", hair: "#33240A", dot: "rgba(255,200,100,.25)" },
+  rose: { accent: "#FF2E63", bg: "#1C1C1C", ink: "#FFF0F5", muted: "#FF99B5", hair: "#33111D", dot: "rgba(255,120,160,.25)" },
+  violet: { accent: "#8B5CFF", bg: "#1C1C1C", ink: "#F5F0FF", muted: "#C9A8FF", hair: "#2E1A50", dot: "rgba(190,150,255,.25)" },
+  sapphire: { accent: "#4169E1", bg: "#1C1C1C", ink: "#EAF0FF", muted: "#A8B8E6", hair: "#1C294D", dot: "rgba(65,105,225,.25)" },
+  cyan: { accent: "#06B6D4", bg: "#1C1C1C", ink: "#E0FCFF", muted: "#67E8F9", hair: "#09343D", dot: "rgba(100,220,255,.25)" },
+  jade: { accent: "#00A86B", bg: "#1C1C1C", ink: "#E6FFF5", muted: "#99E6C8", hair: "#004D33", dot: "rgba(0,168,107,.25)" },
+  mint: { accent: "#3EB489", bg: "#1C1C1C", ink: "#EDFFF9", muted: "#AAE6D1", hair: "#1E4D3D", dot: "rgba(62,180,137,.25)" },
+  burgundy: { accent: "#800020", bg: "#1C1C1C", ink: "#FDEDF0", muted: "#D9A8B8", hair: "#33000D", dot: "rgba(128,0,32,.25)" },
+  copper: { accent: "#B87333", bg: "#1C1C1C", ink: "#FFF5EB", muted: "#E6C4A8", hair: "#4D2E1A", dot: "rgba(184,115,51,.25)" },
+  pearl: { accent: "#E8E4D8", bg: "#1C1C1C", ink: "#FAFAF7", muted: "#D6D2C8", hair: "#3D3B36", dot: "rgba(232,228,216,.25)" },
+  slate: { accent: "#64748B", bg: "#1C1C1C", ink: "#F2F4F8", muted: "#A5B4CC", hair: "#2C3240", dot: "rgba(170,190,210,.30)" },
+  turquoise: { accent: "#40E0D0", bg: "#1C1C1C", ink: "#E6FFFF", muted: "#A8E6E0", hair: "#104D4D", dot: "rgba(64,224,208,.25)" },
+  coral: { accent: "#FF7F50", bg: "#1C1C1C", ink: "#FFF3ED", muted: "#FFC4B0", hair: "#662B1F", dot: "rgba(255,127,80,.25)" },
+  olive: { accent: "#808000", bg: "#1C1C1C", ink: "#F7F7E0", muted: "#D6D6A8", hair: "#333311", dot: "rgba(128,128,0,.25)" },
+  charcoal: { accent: "#36454F", bg: "#1C1C1C", ink: "#E8EEF2", muted: "#A8B3B8", hair: "#12191C", dot: "rgba(54,69,79,.25)" },
+  ivory: { accent: "#FFFFF0", bg: "#1C1C1C", ink: "#FFFFFF", muted: "#E6E6D6", hair: "#4D4D40", dot: "rgba(255,255,240,.25)" },
+  champagne: { accent: "#F7E7CE", bg: "#1C1C1C", ink: "#FFFAF0", muted: "#E6D6B8", hair: "#4D4233", dot: "rgba(247,231,206,.25)" },
+  platinum: { accent: "#E5E4E2", bg: "#1C1C1C", ink: "#FFFFFF", muted: "#CCCCCC", hair: "#333333", dot: "rgba(229,228,226,.25)" },
+  onyx: { accent: "#353839", bg: "#1C1C1C", ink: "#EAEAEA", muted: "#B8B8B8", hair: "#111111", dot: "rgba(53,56,57,.25)" },
+  turmeric: { accent: "#CC7722", bg: "#1C1C1C", ink: "#FFF5E6", muted: "#E6B588", hair: "#4D2E0D", dot: "rgba(204,119,34,.25)" },
+  azure: { accent: "#007FFF", bg: "#1C1C1C", ink: "#E6F5FF", muted: "#99CCFF", hair: "#00334D", dot: "rgba(0,127,255,.25)" },
 };
 type Theme = (typeof THEMES)[ThemeKey];
 
@@ -109,7 +118,7 @@ function extractTags(source: string): string[] {
 }
 
 const INLINE_TAG_WORDS = [
-  "new","gfe","jav","pse","popular","she's back","last day","first day"
+  "new", "gfe", "jav", "pse", "popular", "she's back", "last day", "first day"
 ];
 
 function stripInlineTagWords(s: string): string {
@@ -124,11 +133,15 @@ function stripInlineTagWords(s: string): string {
 
 /* ------------------ Poster ------------------ */
 function PosterSingle({
-  title, shop, groups, theme,
+  title, shop, groups, theme, themeKey
 }: {
-  title: string; shop: string; groups: Group[];
+  title: string;
+  shop: string;
+  groups: Group[];
   theme: Theme;
+  themeKey: string;
 }) {
+
   const cssVars: CSSProperties & Record<string, string> = {
     "--accent": theme.accent,
     "--bg": theme.bg,
@@ -139,7 +152,14 @@ function PosterSingle({
   };
   return (
     <div style={cssVars} className="poster-page">
-      <style dangerouslySetInnerHTML={{__html:`
+      <style dangerouslySetInnerHTML={{
+        __html: `
+      /* ------------------ 🎄 Christmas Accent ------------------ */
+.poster1.xmas .title h1 {
+  text-shadow:
+    0 0 6px rgba(242,201,76,0.6),
+    0 0 14px rgba(193,18,31,0.4);
+}
         .poster1{max-width:100%;margin:0 auto;background:var(--bg);color:var(--ink);border:none;overflow:hidden;box-shadow:0 10px 30px rgba(0,0,0,.4)}
         .poster1 .content{padding:20px}
         .poster1 .title{text-align:center;margin-bottom:12px}
@@ -175,7 +195,7 @@ function PosterSingle({
 
 
       `}} />
-      <div className="poster1">
+<div className={`poster1 ${themeKey}`}>
         <div className="content">
           <div className="title"><h1>{title || " "}</h1></div>
           <div className="center-band" aria-hidden="true">
@@ -186,20 +206,19 @@ function PosterSingle({
           {groups.map((g) => (
             <section key={g.key} className="section">
               {g.rows.map((r, idx) => (
-                <div key={g.key+idx} className="row">
+                <div key={g.key + idx} className="row">
                   <div className="left">
                     <span className="nat">{r.natKey}</span>
                     {r.name}
                     {r.tags?.length ? (
                       <span className="tags">
                         {r.tags.map((t, i) => (
-                          <span 
-                            key={t+i} 
-                            className={`tag ${
-  t === "FIRST DAY" ? "tag-firstday" :
-  t === "LAST DAY" ? "tag-lastday" :
-  t === "NEW" ? "tag-new" : ""
-}`}
+                          <span
+                            key={t + i}
+                            className={`tag ${t === "FIRST DAY" ? "tag-firstday" :
+                              t === "LAST DAY" ? "tag-lastday" :
+                                t === "NEW" ? "tag-new" : ""
+                              }`}
                           >
                             {t}
                           </span>
@@ -270,19 +289,20 @@ export default function RosterBBApp() {
     if (themeKey === "halloween1") return `🎃 ${title} 🎃`;
     if (themeKey === "halloween2") return `👻 ${title}👻 `;
     if (themeKey === "halloween3") return `🧙‍♀️ ${title}🔮 `;
+    if (themeKey === "xmas") return `🎄 ${title} 🎁`;
     return title;
   }, [themeKey, title]);
 
-  const groups: Group[] = [{ key:"all", rows: parsed }];
+  const groups: Group[] = [{ key: "all", rows: parsed }];
 
   async function exportPNG() {
     const node = document.querySelector(".poster-page") as HTMLElement | null;
     if (!node) return;
     const width = node.scrollWidth, height = node.scrollHeight;
-    const dataUrl = await toPng(node,{pixelRatio:3,cacheBust:true,width,height});
-    const a=document.createElement("a");
-    a.href=dataUrl;
-    a.download=`${title.replace(/\s+/g,"_") || "poster"}.png`;
+    const dataUrl = await toPng(node, { pixelRatio: 3, cacheBust: true, width, height });
+    const a = document.createElement("a");
+    a.href = dataUrl;
+    a.download = `${title.replace(/\s+/g, "_") || "poster"}.png`;
     a.click();
   }
 
@@ -290,7 +310,7 @@ export default function RosterBBApp() {
     <div className="min-h-screen w-screen bg-neutral-100 text-neutral-900 flex flex-col gap-6 p-6">
       <header className="flex items-center justify-between gap-2">
         <h1 className="text-2xl font-bold">Roster Parser → Poster</h1>
-        <Button onClick={exportPNG}><ImageIcon className="w-4 h-4 mr-2"/> Export PNG</Button>
+        <Button onClick={exportPNG}><ImageIcon className="w-4 h-4 mr-2" /> Export PNG</Button>
       </header>
 
       <Label>Theme</Label>
@@ -307,11 +327,11 @@ export default function RosterBBApp() {
       <div className="grid md:grid-cols-2 gap-6">
         <Card><CardContent className="p-4 space-y-4">
           <Label>Title</Label>
-          <Input value={title} onChange={e=>setTitle(e.target.value)} />
+          <Input value={title} onChange={e => setTitle(e.target.value)} />
           <Label>Shop</Label>
-          <Input value={shop} onChange={e=>setShop(e.target.value)} />
+          <Input value={shop} onChange={e => setShop(e.target.value)} />
           <Label>Roster Input</Label>
-          <Textarea rows={18} value={raw} onChange={e=>setRaw(e.target.value)} />
+          <Textarea rows={18} value={raw} onChange={e => setRaw(e.target.value)} />
         </CardContent></Card>
 
         <Card><CardContent className="p-4">
@@ -320,6 +340,7 @@ export default function RosterBBApp() {
   shop={shop}
   groups={groups}
   theme={THEMES[themeKey]}
+  themeKey={themeKey}
 />
         </CardContent></Card>
       </div>
