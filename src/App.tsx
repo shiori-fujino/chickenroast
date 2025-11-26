@@ -104,22 +104,46 @@ function normalizeNat(raw: string) {
 function extractTags(source: string): string[] {
   const raw = source.toUpperCase();
   const tags: string[] = [];
+
   if (/\bNEW\b/.test(raw) && !/\bNEW\s+ZEALAND\b/.test(raw)) tags.push("NEW");
   if (/\bPOPULAR\b/.test(raw)) tags.push("POPULAR");
-  if (/\bGFE\b/.test(raw)) tags.push("GFE");
-  if (/\bPSE\b/.test(raw)) tags.push("PSE");
   if (/\bJAV\b/.test(raw)) tags.push("JAV");
-  if (/\bSHE'S\s*BACK\b/.test(raw) || /\bRETURN\b/.test(raw) || /\bCAME\s+BACK\b/.test(raw)) {
+
+  if (
+    /\bSHE'S\s*BACK\b/.test(raw) ||
+    /\bSHE\s+IS\s+BACK\b/.test(raw) ||
+    /\bRETURN\b/.test(raw) ||
+    /\bCAME\s+BACK\b/.test(raw)
+  ) {
     tags.push("SHE'S BACK!");
   }
+
   if (/\bLAST\s+DAY\b/.test(raw)) tags.push("LAST DAY");
   if (/\bFIRST\s+DAY\b/.test(raw)) tags.push("FIRST DAY");
+
+  if (
+    /\bBOOKED\s*OUT\b/.test(raw) ||
+    /\bFULLY\s*BOOKED\b/.test(raw)
+  ) {
+    tags.push("BOOKED OUT");
+  }
+
   return tags;
 }
 
+
 const INLINE_TAG_WORDS = [
-  "new", "gfe", "jav", "pse", "popular", "she's back", "last day", "first day"
+  "new",
+  "jav",
+  "popular",
+  "she's back",
+  "last day",
+  "first day",
+  "booked out",
+  "fully booked",
+  "no vacancy"
 ];
+
 
 function stripInlineTagWords(s: string): string {
   return s
@@ -130,6 +154,7 @@ function stripInlineTagWords(s: string): string {
     .replace(/\s{2,}/g, " ")
     .trim();
 }
+
 
 /* ------------------ Poster ------------------ */
 function PosterSingle({
@@ -160,6 +185,28 @@ function PosterSingle({
     0 0 6px rgba(242,201,76,0.6),
     0 0 14px rgba(193,18,31,0.4);
 }
+/* ------------------ 💿 SHE'S BACK — DARK GLOWY GOLD ------------------ */
+.poster1 .tag-sheback {
+  color: #d4af37 !important;        /* true metallic gold */
+  border-color: #d4af37 !important;
+}
+
+
+/* ------------------ 🙈 POPULAR — INVISIBLE ------------------ */
+.poster1 .tag-popular {
+  display: none !important;
+}
+
+/* ------------------ 🚫 BOOKED OUT — MATTE, NO NEON ------------------ */
+.poster1 .tag-bookedout {
+  color: #4b5563 !important;        /* dark slate grey */
+  border-color: #4b5563 !important;
+  text-shadow: none !important;
+  box-shadow: none !important;
+  opacity: 0.85;
+}
+
+
         .poster1{max-width:100%;margin:0 auto;background:var(--bg);color:var(--ink);border:none;overflow:hidden;box-shadow:0 10px 30px rgba(0,0,0,.4)}
         .poster1 .content{padding:20px}
         .poster1 .title{text-align:center;margin-bottom:12px}
@@ -175,13 +222,47 @@ function PosterSingle({
         .poster1 .price{margin-left:10px;color:var(--ink);font-weight:600;font-size:.9em;flex:1;text-align:right}
         .poster1 .tags{display:inline-flex;gap:.35rem;margin-left:.5rem;flex-wrap:wrap}
         .poster1 .tag{display:inline-block;padding:.15rem .4rem;border-radius:4px;font-weight:800;font-size:.7em;color:var(--accent);border:1px solid var(--accent)}
-        .poster1 .tag-firstday{color:#50C878 !important;border-color:#50C878 !important;text-shadow:0 0 6px rgba(57,255,20,0.8)}
-        .poster1 .tag-lastday{color:#D946EF !important;border-color:#D946EF !important;text-shadow:0 0 6px rgba(255,0,255,0.8)}
+
+
+        /* ------------------ 🌱 FIRST DAY — NEON UNDERLINE ONLY ------------------ */
+.poster1 .tag-firstday {
+  border: none !important;
+  padding: 0 !important;
+  border-radius: 0 !important;
+  color: #4fffca !important;
+  position: relative;
+  text-shadow:
+    0 0 6px rgba(79,255,202,0.9),
+    0 0 12px rgba(79,255,202,0.6);
+}
+
+
+
+
+/* ------------------ 💖 LAST DAY — MAGENTA UNDERLINE ONLY ------------------ */
+.poster1 .tag-lastday {
+  border: none !important;
+  padding: 0 !important;
+  border-radius: 0 !important;
+  color: #ff2fdc !important;
+  position: relative;
+  text-shadow:
+    0 0 6px rgba(255,47,220,0.9),
+    0 0 12px rgba(255,47,220,0.7),
+    0 0 20px rgba(255,47,220,0.5);
+}
+
+
+
+
         .poster1 .tag-new {
           color: #E63946 !important; /* ruby red */
           border-color: #E63946 !important;
           text-shadow: 0 0 6px rgba(230, 57, 70, 0.8);
         }
+
+
+        
         /* ------------------ Halloween Accents ------------------ */
 .poster1.halloween1 .title h1 {
   text-shadow: 0 0 12px rgba(255,117,24,0.5);
@@ -215,10 +296,14 @@ function PosterSingle({
                         {r.tags.map((t, i) => (
                           <span
                             key={t + i}
-                            className={`tag ${t === "FIRST DAY" ? "tag-firstday" :
-                              t === "LAST DAY" ? "tag-lastday" :
-                                t === "NEW" ? "tag-new" : ""
-                              }`}
+                            className={`tag ${
+  t === "FIRST DAY" ? "tag-firstday" :
+  t === "LAST DAY" ? "tag-lastday" :
+  t === "NEW" ? "tag-new" :
+  t === "SHE'S BACK!" ? "tag-sheback" :
+  t === "BOOKED OUT" ? "tag-bookedout" : 
+  t === "POPULAR" ? "tag-popular" : ""
+}`}
                           >
                             {t}
                           </span>
@@ -289,7 +374,7 @@ export default function RosterBBApp() {
     if (themeKey === "halloween1") return `🎃 ${title} 🎃`;
     if (themeKey === "halloween2") return `👻 ${title}👻 `;
     if (themeKey === "halloween3") return `🧙‍♀️ ${title}🔮 `;
-    if (themeKey === "xmas") return `🎄 ${title} 🎁`;
+    if (themeKey === "xmas") return `🎄 ${title}  🎁`;
     return title;
   }, [themeKey, title]);
 
