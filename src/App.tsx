@@ -374,7 +374,7 @@ export default function RosterBBApp() {
     if (themeKey === "halloween1") return `🎃 ${title} 🎃`;
     if (themeKey === "halloween2") return `👻 ${title}👻 `;
     if (themeKey === "halloween3") return `🧙‍♀️ ${title}🔮 `;
-    if (themeKey === "xmas") return `🎄 ${title}  🎁`;
+    if (themeKey === "xmas") return `🎄 ${title }  🎁`;
     return title;
   }, [themeKey, title]);
 
