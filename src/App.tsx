@@ -105,7 +105,7 @@ function extractTags(source: string): string[] {
   const raw = source.toUpperCase();
   const tags: string[] = [];
 
-  if (/\bNEW\b/.test(raw) && !/\bNEW\s+ZEALAND\b/.test(raw)) tags.push("NEW");
+if (/\bNEW\b(?!\s+ZEALAND)/.test(raw)) tags.push("NEW");
   if (/\bPOPULAR\b/.test(raw)) tags.push("POPULAR");
   if (/\bJAV\b/.test(raw)) tags.push("JAV");
 
