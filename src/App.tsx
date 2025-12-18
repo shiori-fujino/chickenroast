@@ -150,7 +150,7 @@ function stripInlineTagWords(s: string): string {
     .replace(/\bNew\s+Zealand\b/gi, "NZPLACEHOLDER")
     .replace(new RegExp(`\\b(?:${INLINE_TAG_WORDS.join("|")})\\b`, "gi"), "")
     .replace(/NZPLACEHOLDER/g, "New Zealand")
-    .replace(/[!?.]+/g, "")
+    .replace(/[!?.]+/g, "") // remove only exclamations, not hyphens
     .replace(/\s{2,}/g, " ")
     .trim();
 }
@@ -354,8 +354,8 @@ export default function RosterBBApp() {
       }
 
       const m = line.match(
-        /^\(([^)]+)\)\s*([A-Za-z0-9 ]+)\s+(\d{1,2}(?::\d{2})?\s*(?:am|pm))\s*-\s*([\d: ]+(?:am|pm)?)/i
-      );
+  /^\(([^)]+)\)\s*([A-Za-z0-9'’\- ]+)\s+(\d{1,2}(?::\d{2})?\s*(?:am|pm))\s*-\s*([\d: ]+(?:am|pm)?)/i
+);
       if (m) {
         const natKey = normalizeNat(m[1]);
         const rawName = m[2].trim();
